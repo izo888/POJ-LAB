@@ -1,61 +1,101 @@
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Collections; // potrzebne do niemodyfikowalnej mapy
+
+// Główna klasa programu
+public class StockMarketSimStage1 {
+
+    public static void main(String[] args) {
+        // Tworzymy kilka akcji
+        Stock cdr = new Stock("CDR", "CD Projekt Red", 300.0);
+        Stock pko = new Stock("PKO", "PKO Bank Polski", 40.0);
+        Stock kgh = new Stock("KGH", "KGHM", 120.0);
+        //chyba tak miało być z zadania [cite: 39]
+
+        // Robimy nowy portfel
+        Portfolio mojPortfel = new Portfolio(10000.0); // na start 10000 zł [cite: 40]
+
+        // Dodajemy akcje do portfela
+        mojPortfel.addStock(cdr, 10); // 10 CDR-ów [cite: 41]
+        mojPortfel.addStock(pko, 50); // 50 PKO
+        mojPortfel.addStock(kgh, 20); // 20 KGH
+
+        // Obliczamy wartość akcji i całego portfela
+        double wartoscAkcji = mojPortfel.calculateStockValue();
+        double wartoscPortfela = mojPortfel.calculateTotalValue();
+
+        // Wyświetlamy informacje o portfelu
+        System.out.println("Stan Portfela"); //Nagłówek [cite: 44]
+        System.out.println("Gotówka: " + mojPortfel.getCash() + " PLN"); //Wyświetlamy gotówkę [cite: 44]
+
+        System.out.println("Posiadane akcje:"); //Nagłówek [cite: 44]
+        for (Map.Entry<Stock, Integer> entry : mojPortfel.getStocksInPortfolio().entrySet()) { //Pętla po wszystkich akcjach w portfelu [cite: 36, 37]
+            Stock akcja = entry.getKey();
+            int ilosc = entry.getValue();
+            double wartoscPozycji = akcja.getInitialPrice() * ilosc;  //liczymy wartość jednej pozycji [cite: 37]
+            System.out.println(akcja.getSymbol() + " (" + akcja.getName() + "): " +
+                    ilosc + " szt. @ " + akcja.getInitialPrice() + " PLN/szt. = " + wartoscPozycji + " PLN"); //Wyświetlamy dane o akcji [cite: 42, 43, 44, 45]
+        }
+
+        System.out.println("Wartość akcji: " + wartoscAkcji + " PLN");  //Wyświetlamy wartość akcji [cite: 42, 43, 44, 45]
+        System.out.println("Wartość całkowita portfela: " + wartoscPortfela + " PLN"); //Wyświetlamy wartość portfela [cite: 42, 43, 44, 45]
+    }
+}
 
 // Klasa reprezentująca akcję
 class Stock {
-    private String symbol;
-    private String name;
-    private double initialPrice;
+    private String symbol; // Symbol akcji [cite: 27]
+    private String name; // Nazwa akcji [cite: 27]
+    private double initialPrice; // Cena początkowa [cite: 27]
 
-    // Konstruktor do tworzenia akcji
+    // Konstruktor akcji [cite: 28]
     public Stock(String symbol, String name, double initialPrice) {
         this.symbol = symbol;
         this.name = name;
         this.initialPrice = initialPrice;
     }
 
-    // Metoda do pobrania symbolu akcji
+    // Gettery [cite: 28]
     public String getSymbol() {
         return symbol;
     }
 
-    // Metoda do pobrania nazwy akcji
     public String getName() {
         return name;
     }
 
-    // Metoda do pobrania ceny początkowej akcji
     public double getInitialPrice() {
         return initialPrice;
     }
 
-    // Nadpisane metody equals() i hashCode()
+    // Nadpisane metody equals() i hashCode() [cite: 29, 30]
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        Stock stock = (Stock) obj;
-        return symbol.equals(stock.symbol);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Stock stock = (Stock) o;
+        return Objects.equals(symbol, stock.symbol);
     }
 
     @Override
     public int hashCode() {
-        return symbol.hashCode();
+        return Objects.hash(symbol);
     }
 }
 
 // Klasa reprezentująca portfel
 class Portfolio {
-    private double cash;
-    private Map<Stock, Integer> stocksInPortfolio;
+    private double cash; // Gotówka w portfelu [cite: 31]
+    private Map<Stock, Integer> stocksInPortfolio; // Akcje w portfelu (akcja i ilość) [cite: 31]
 
-    // Konstruktor do tworzenia portfela
+    // Konstruktor portfela [cite: 31, 32]
     public Portfolio(double initialCash) {
         this.cash = initialCash;
         this.stocksInPortfolio = new HashMap<>();
     }
 
-    // Metoda do dodawania akcji do portfela
+    // Metoda dodawania akcji do portfela [cite: 32, 33, 34]
     public void addStock(Stock stock, int quantity) {
         if (stocksInPortfolio.containsKey(stock)) {
             stocksInPortfolio.put(stock, stocksInPortfolio.get(stock) + quantity);
@@ -64,59 +104,29 @@ class Portfolio {
         }
     }
 
-    // Metoda do pobrania gotówki w portfelu
+    // Getter gotówki [cite: 34]
     public double getCash() {
         return cash;
     }
 
-    // Metoda do pobrania mapy akcji w portfelu
+    // Getter akcji (zwraca kopię dla bezpieczeństwa) [cite: 35]
     public Map<Stock, Integer> getStocksInPortfolio() {
-        return stocksInPortfolio;
+        return Collections.unmodifiableMap(stocksInPortfolio);
     }
 
-    // Metoda do obliczenia wartości akcji w portfelu
+    // Metoda obliczania wartości akcji [cite: 36, 37, 38]
     public double calculateStockValue() {
         double totalValue = 0.0;
         for (Map.Entry<Stock, Integer> entry : stocksInPortfolio.entrySet()) {
-            totalValue += entry.getValue() * entry.getKey().getInitialPrice();
+            Stock stock = entry.getKey();
+            int quantity = entry.getValue();
+            totalValue += stock.getInitialPrice() * quantity;
         }
         return totalValue;
     }
 
-    // Metoda do obliczenia całkowitej wartości portfela
+    // Metoda obliczania całkowitej wartości portfela [cite: 38]
     public double calculateTotalValue() {
-        return calculateStockValue() + cash;
-    }
-}
-
-// Główna klasa programu
-public class StockMarketSimStage1 {
-    public static void main(String[] args) {
-        // Tworzenie akcji
-        Stock cdr = new Stock("CDR", "CD Projekt", 300.0);
-        Stock pko = new Stock("PKO", "PKO BP", 40.0);
-        Stock kgh = new Stock("KGH", "KGHM", 120.0);
-
-        // Tworzenie portfela
-        Portfolio portfolio = new Portfolio(10000.0);
-
-        // Dodawanie akcji do portfela
-        portfolio.addStock(cdr, 10);
-        portfolio.addStock(pko, 50);
-        portfolio.addStock(kgh, 20);
-
-        // Obliczanie i wyświetlanie informacji o portfelu
-        System.out.println("Stan Portfela");
-        System.out.println("Gotówka: " + portfolio.getCash() + " PLN");
-        System.out.println("Posiadane akcje:");
-        for (Map.Entry<Stock, Integer> entry : portfolio.getStocksInPortfolio().entrySet()) {
-            Stock stock = entry.getKey();
-            int quantity = entry.getValue();
-            double stockValue = quantity * stock.getInitialPrice();
-            System.out.println(stock.getSymbol() + " (" + stock.getName() + "): " + quantity + " szt. @ "
-                    + stock.getInitialPrice() + " PLN/szt. = " + stockValue + " PLN");
-        }
-        System.out.println("Wartość akcji: " + portfolio.calculateStockValue() + " PLN");
-        System.out.println("Wartość całkowita portfela: " + portfolio.calculateTotalValue() + " PLN");
+        return cash + calculateStockValue();
     }
 }
