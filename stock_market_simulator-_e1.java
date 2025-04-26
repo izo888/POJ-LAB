@@ -26,16 +26,12 @@ public class Main {
         public double getInitialPrice() { // Pobierz cenę
             return initialPrice;
         }
-
-        @Override
         public boolean equals(Object obj) {  // Porównaj akcje
             if (this == obj) return true;
             if (obj == null || getClass() != obj.getClass()) return false;
             Stock stock = (Stock) obj;
             return symbol.equals(stock.symbol);
         }
-
-        @Override
         public int hashCode() {   // Kod haszujący
             return symbol.hashCode();
         }
