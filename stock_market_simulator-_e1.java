@@ -4,7 +4,7 @@ import java.util.Collections;
 
 public class Main {
 
-    static class Stock {  // Klasa reprezentująca akcję
+    class Stock {  // Klasa reprezentująca akcję
         private String symbol;       // Symbol akcji
         private String name;         // Nazwa firmy
         private double initialPrice; // Cena początkowa
@@ -37,7 +37,7 @@ public class Main {
         }
     }
 
-    static class Portfolio {  // Klasa reprezentująca portfel
+    class Portfolio {  // Klasa reprezentująca portfel
         private double cash;             // Gotówka w portfelu
         private Map<Stock, Integer> stocksInPortfolio; // Akcje w portfelu
 
